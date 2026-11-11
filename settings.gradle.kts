@@ -1,0 +1,1 @@
+rootProject.name = "service_slice_link"
