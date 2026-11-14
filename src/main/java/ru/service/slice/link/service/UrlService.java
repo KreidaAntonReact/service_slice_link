@@ -3,6 +3,8 @@ package ru.service.slice.link.service;
 import ru.service.slice.link.entity.UrlEntity;
 import ru.service.slice.link.repository.UrlRepository;
 
+import java.util.UUID;
+
 public class UrlService {
     private final UrlRepository urlRepository;
     private final BaseConversion baseConversion;
@@ -12,10 +14,11 @@ public class UrlService {
         this.baseConversion = baseConversion;
     }
 
-    public String convertToShortUrl(String url) {
+    public String convertToShortUrl(String url, UUID userId) {
         UrlEntity newEntity = new UrlEntity();
 
         newEntity.setUrlLong(url);
+        newEntity.setUserId(userId);
 
         Boolean isCreate = this.urlRepository.setEntity(newEntity);
 

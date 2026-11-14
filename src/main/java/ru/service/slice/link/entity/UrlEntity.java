@@ -5,6 +5,7 @@ import java.util.UUID;
 public class UrlEntity {
     private long id;
     private String urlLong;
+    private UUID userId;
 
     public UrlEntity() {
         this.id = this.generateId();
@@ -24,6 +25,14 @@ public class UrlEntity {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public long generateId() {
