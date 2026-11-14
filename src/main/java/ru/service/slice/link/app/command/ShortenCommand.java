@@ -17,13 +17,26 @@ public class ShortenCommand implements Command {
             throw new IllegalArgumentException(getMessageHowUseCommand());
         }
 
-        String shortCode = urlService.convertToShortUrl(args[0]);
-        System.out.printf("Короткая ссылка: %s%s%n", SHORT_URL_PREFIX, shortCode);
+        String longUrl = args[0];
+        String shortCode = urlService.convertToShortUrl(longUrl);
+        System.out.printf("Короткая ссылка: %s%s%s%n", extractProtocol(longUrl), SHORT_URL_PREFIX, shortCode);
     }
 
     @Override
     public String getDescription() {
         return "создать короткую ссылку - shorten <url>";
+    }
+
+    private String extractProtocol(String url) {
+        if (url.startsWith("https://")) {
+            return "https://";
+        }
+
+        if (url.startsWith("http://")) {
+            return "http://";
+        }
+
+        return "";
     }
 
     private String getMessageHowUseCommand() {

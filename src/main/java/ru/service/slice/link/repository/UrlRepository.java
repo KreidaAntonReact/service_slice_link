@@ -22,7 +22,7 @@ public class UrlRepository {
         UrlEntity entity = urls.get(id);
 
         if(entity == null) {
-            throw new NoSuchElementException("URL c id - " + id);
+            throw new NoSuchElementException("URL не найден");
         }
 
         return entity;
