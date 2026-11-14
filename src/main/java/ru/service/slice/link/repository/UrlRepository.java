@@ -4,6 +4,7 @@ import ru.service.slice.link.entity.UrlEntity;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class UrlRepository {
     private final Map<Long, UrlEntity> urls = new LinkedHashMap<Long, UrlEntity>();
@@ -18,6 +19,12 @@ public class UrlRepository {
     }
 
     public UrlEntity getEntity(Long id) {
-        return urls.get(id);
+        UrlEntity entity = urls.get(id);
+
+        if(entity == null) {
+            throw new NoSuchElementException("URL with id " + id);
+        }
+
+        return entity;
     }
 }
