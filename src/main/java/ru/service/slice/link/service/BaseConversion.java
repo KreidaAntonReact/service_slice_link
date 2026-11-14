@@ -25,11 +25,11 @@ public class BaseConversion {
         char[] characters = input.toCharArray();
         int length = characters.length;
 
-        int decoded = 0;
+        long decoded = 0;
 
         int counter = 1;
         for (char character : characters) {
-            decoded += (int) (allowedString.indexOf(character) * Math.pow(base, length - counter));
+            decoded += (long) (allowedString.indexOf(character) * Math.pow(base, length - counter));
             counter++;
         }
         return decoded;

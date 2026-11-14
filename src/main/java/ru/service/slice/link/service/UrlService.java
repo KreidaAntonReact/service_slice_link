@@ -3,6 +3,8 @@ package ru.service.slice.link.service;
 import ru.service.slice.link.entity.UrlEntity;
 import ru.service.slice.link.repository.UrlRepository;
 
+import java.util.NoSuchElementException;
+
 public class UrlService {
     private final UrlRepository urlRepository;
     private final BaseConversion baseConversion;
@@ -32,8 +34,17 @@ public class UrlService {
 
     public String getLongUrl(String shortUrl) {
         long id = baseConversion.decode(shortUrl);
-        UrlEntity findUrlEntity = urlRepository.getEntity(id);
 
-        return findUrlEntity.getUrlLong();
+        try {
+            UrlEntity findUrlEntity = urlRepository.getEntity(id);
+
+            return findUrlEntity.getUrlLong();
+        } catch (NoSuchElementException error) {
+            this.logError(error);
+        }
+    }
+
+    private void logError(Exception error) {
+        System.err.println(error.getMessage());
     }
 }
