@@ -1,11 +1,11 @@
 package ru.service.slice.link;
 
-import java.util.*;
+import ru.service.slice.link.app.App;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
-    static void main() {
-       
+    public static void main(String[] args) {
+        System.setErr(System.out);
+        App app = new App();
+        app.run();
     }
 }

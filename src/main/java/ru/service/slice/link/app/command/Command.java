@@ -1,0 +1,7 @@
+package ru.service.slice.link.app.command;
+
+public interface Command {
+    void execute(String... args);
+
+    String getDescription();
+}
