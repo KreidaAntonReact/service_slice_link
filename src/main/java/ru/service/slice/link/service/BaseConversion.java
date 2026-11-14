@@ -6,10 +6,10 @@ public class BaseConversion {
     private final char[] allowedCharacters = allowedString.toCharArray();
     private final int base = allowedCharacters.length;
 
-    public String encode(long input){
+    public String encode(long input) {
         StringBuilder encodedString = new StringBuilder();
 
-        if(input == 0) {
+        if (input == 0) {
             return String.valueOf(allowedCharacters[0]);
         }
 
@@ -22,16 +22,18 @@ public class BaseConversion {
     }
 
     public long decode(String input) {
-        char[] characters = input.toCharArray();
-        int length = characters.length;
-
         long decoded = 0;
 
-        int counter = 1;
-        for (char character : characters) {
-            decoded += (long) (allowedString.indexOf(character) * Math.pow(base, length - counter));
-            counter++;
+        for (char character : input.toCharArray()) {
+            int index = allowedString.indexOf(character);
+
+            if (index < 0) {
+                throw new IllegalArgumentException("Некорректная короткая ссылка");
+            }
+
+            decoded = decoded * base + index;
         }
+
         return decoded;
     }
 }
