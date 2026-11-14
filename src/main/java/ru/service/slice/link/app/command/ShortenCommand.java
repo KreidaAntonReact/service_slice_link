@@ -6,6 +6,7 @@ import ru.service.slice.link.service.UrlService;
 
 public class ShortenCommand implements Command {
     private static final String SHORT_URL_PREFIX = "clck.ru/";
+    private static final int DEFAULT_LIMIT = 10;
 
     private final AuthService authService;
     private final UrlService urlService;
@@ -29,13 +30,35 @@ public class ShortenCommand implements Command {
         }
 
         String longUrl = args[0];
-        String shortCode = urlService.convertToShortUrl(longUrl, user.getId());
+        int limit = DEFAULT_LIMIT;
+
+        if (args.length >= 2) {
+            limit = parseLimit(args[1]);
+        }
+
+        String shortCode = urlService.convertToShortUrl(longUrl, user.getId(), limit);
         System.out.printf("Короткая ссылка: %s%s%s%n", extractProtocol(longUrl), SHORT_URL_PREFIX, shortCode);
     }
 
     @Override
     public String getDescription() {
-        return "создать короткую ссылку - shorten <url>";
+        return "создать короткую ссылку - shorten <url> [limit]";
+    }
+
+    private int parseLimit(String value) {
+        int limit;
+
+        try {
+            limit = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Лимит переходов должен быть числом");
+        }
+
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Лимит переходов должен быть больше 0");
+        }
+
+        return limit;
     }
 
     private String extractProtocol(String url) {
@@ -51,6 +74,6 @@ public class ShortenCommand implements Command {
     }
 
     private String getMessageHowUseCommand() {
-        return "Ошибка при вводе. Нужно использовать: shorten <url>";
+        return "Ошибка при вводе. Нужно использовать: shorten <url> [limit]";
     }
 }
