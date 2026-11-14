@@ -27,4 +27,8 @@ public class UrlRepository {
 
         return entity;
     }
+
+    public void deleteEntity(Long id) {
+        urls.remove(id);
+    }
 }
