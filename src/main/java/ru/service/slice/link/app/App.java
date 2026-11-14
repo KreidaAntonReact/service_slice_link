@@ -3,11 +3,17 @@ package ru.service.slice.link.app;
 import ru.service.slice.link.app.command.Command;
 import ru.service.slice.link.app.command.ExitCommand;
 import ru.service.slice.link.app.command.HelpCommand;
+import ru.service.slice.link.app.command.LoginCommand;
+import ru.service.slice.link.app.command.LogoutCommand;
 import ru.service.slice.link.app.command.OpenCommand;
 import ru.service.slice.link.app.command.ShortenCommand;
+import ru.service.slice.link.app.command.UserCommand;
 import ru.service.slice.link.repository.UrlRepository;
+import ru.service.slice.link.repository.UserRepository;
+import ru.service.slice.link.service.AuthService;
 import ru.service.slice.link.service.BaseConversion;
 import ru.service.slice.link.service.UrlService;
+import ru.service.slice.link.service.UserService;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -21,11 +27,17 @@ public class App {
 
     public App() {
         UrlRepository urlRepository = new UrlRepository();
+        UserRepository userRepository = new UserRepository();
         BaseConversion baseConversion = new BaseConversion();
         UrlService urlService = new UrlService(urlRepository, baseConversion);
+        UserService userService = new UserService(userRepository);
+        AuthService authService = new AuthService(userService);
 
-        commands.put("shorten", new ShortenCommand(urlService));
+        commands.put("shorten", new ShortenCommand(authService, urlService));
         commands.put("open", new OpenCommand(urlService));
+        commands.put("user", new UserCommand(authService));
+        commands.put("login", new LoginCommand(authService));
+        commands.put("logout", new LogoutCommand(authService));
         commands.put("exit", new ExitCommand(this::stop));
         commands.put("help", new HelpCommand(commands));
     }
