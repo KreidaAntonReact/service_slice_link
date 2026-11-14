@@ -5,13 +5,17 @@ import ru.service.slice.link.repository.UrlRepository;
 
 public class UrlService {
     private final UrlRepository urlRepository;
+    private final BaseConversion baseConversion;
 
-    public UrlService(UrlRepository urlRepository) {
+    public UrlService(UrlRepository urlRepository, BaseConversion baseConversion) {
         this.urlRepository = urlRepository;
+        this.baseConversion = baseConversion;
     }
 
     public String convertToShortUrl(String url) {
         UrlEntity newEntity = new UrlEntity();
+
+        newEntity.setUrlLong(url);
 
         Boolean isCreate = this.urlRepository.setEntity(newEntity);
 
@@ -24,6 +28,6 @@ public class UrlService {
         }
 
 
-        return this.urlRepository.getEntity(newEntity.getId()).toString();
+        return this.baseConversion.encode(newEntity.getId());
     }
 }
