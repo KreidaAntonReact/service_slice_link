@@ -18,7 +18,14 @@ public class LoginCommand implements Command {
             throw new IllegalArgumentException(getMessageHowUseCommand());
         }
 
-        UUID id = UUID.fromString(args[0]);
+        UUID id;
+
+        try {
+            id = UUID.fromString(args[0]);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Некорректный UUID. Нужно использовать: login <uuid>");
+        }
+
         UserEntity user = authService.login(id);
         System.out.printf("Вы идентифицированы как %s%n", user.getId());
     }

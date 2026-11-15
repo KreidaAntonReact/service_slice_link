@@ -31,6 +31,8 @@ public class EditCommand implements Command {
         String shortCode = UrlValidator.extractShortCode(args[0]);
         String[] flags = Arrays.copyOfRange(args, 1, args.length);
 
+        validateFlags(flags);
+
         TtlChange ttlChange = parseTtlFlag(flags);
         Integer limit = parseLimitFlag(flags);
 
@@ -61,6 +63,23 @@ public class EditCommand implements Command {
                 + "code> [-t <1h|1d>] [-l <limit>]";
     }
 
+    private void validateFlags(String... flags) {
+        for (int i = 0; i < flags.length; i++) {
+            String flag = flags[i];
+
+            if ("-t".equals(flag) || "-l".equals(flag)) {
+                if (i + 1 >= flags.length) {
+                    throw new IllegalArgumentException(getMessageHowUseCommand());
+                }
+
+                i++;
+                continue;
+            }
+
+            throw new IllegalArgumentException("Неизвестный флаг: " + flag);
+        }
+    }
+
     private TtlChange parseTtlFlag(String... flags) {
         for (int i = 0; i < flags.length; i++) {
             if (!"-t".equals(flags[i])) {
@@ -77,7 +96,7 @@ public class EditCommand implements Command {
                 throw new IllegalArgumentException("TTL нужно указывать в формате 1h или 1d");
             }
 
-            int amount = Integer.parseInt(matcher.group(1));
+            int amount = parsePositiveAmount(matcher.group(1));
             String unit = matcher.group(2).toLowerCase();
             TtlChange ttlChange = new TtlChange();
 
@@ -107,6 +126,22 @@ public class EditCommand implements Command {
         }
 
         return null;
+    }
+
+    private int parsePositiveAmount(String value) {
+        int amount;
+
+        try {
+            amount = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Некорректное значение TTL");
+        }
+
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Значение TTL должно быть больше 0");
+        }
+
+        return amount;
     }
 
     private int parseLimit(String value) {

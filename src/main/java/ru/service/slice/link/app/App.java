@@ -100,12 +100,16 @@ public class App {
 
             try {
                 command.execute(args);
-
-                if (PERSIST_COMMANDS.contains(commandText)) {
-                    persistService.save();
-                }
             } catch (Exception e) {
                 logError(e);
+            } finally {
+                if (PERSIST_COMMANDS.contains(commandText)) {
+                    try {
+                        persistService.save();
+                    } catch (Exception persistError) {
+                        logError(persistError);
+                    }
+                }
             }
         }
     }

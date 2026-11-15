@@ -24,11 +24,17 @@ public class OpenCommand implements Command {
         UrlValidator.requireValidUrl(longUrl);
 
         try {
-            Desktop.getDesktop().browse(new URI(longUrl));
-            System.out.printf("Переход по ссылке: %s%n", longUrl);
-        } catch (Exception e) {
-            throw new IllegalStateException("Не удалось открыть ссылку в браузере: " + e.getMessage(), e);
+            if (Desktop.isDesktopSupported()
+                    && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(longUrl));
+                System.out.printf("Переход по ссылке: %s%n", longUrl);
+                return;
+            }
+        } catch (Exception ignored) {
+            // fallback below
         }
+
+        System.out.printf("Не удалось открыть браузер. Ссылка: %s%n", longUrl);
     }
 
     @Override

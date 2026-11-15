@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public class UrlService {
     private static final String LIMIT_EXHAUSTED_MESSAGE = "Лимит переходов исчерпан. Ссылка заблокирована";
+    private static final String EXPIRED_MESSAGE = "У ссылки истекло время действия и была удалена";
 
     private final UrlRepository urlRepository;
     private final BaseConversion baseConversion;
@@ -49,10 +50,7 @@ public class UrlService {
         long id = baseConversion.decode(shortUrl);
         UrlEntity findUrlEntity = urlRepository.getEntity(id);
 
-        if (LocalDateTime.now().isAfter(findUrlEntity.getExpiresDate())) {
-            urlRepository.deleteEntity(id);
-            throw new IllegalStateException("У ссылки истекло время дейстия и была удалена");
-        }
+        deleteIfExpired(id, findUrlEntity);
 
         if (findUrlEntity.isBlocked()) {
             throw new IllegalStateException("Ссылка заблокирована");
@@ -92,11 +90,8 @@ public class UrlService {
         }
 
         long id = baseConversion.decode(shortUrl);
-        UrlEntity findUrlEntity = urlRepository.getEntity(id);
-
-        if (!findUrlEntity.getUserId().equals(userId)) {
-            throw new IllegalStateException("Вы можете редактировать только свои ссылки");
-        }
+        UrlEntity findUrlEntity = requireOwnedUrl(id, userId);
+        deleteIfExpired(id, findUrlEntity);
 
         if (hours != null) {
             findUrlEntity.increaseTtlByHours(hours);
@@ -109,14 +104,35 @@ public class UrlService {
 
     public int updateLimit(String shortUrl, UUID userId, int limit) {
         long id = baseConversion.decode(shortUrl);
+        UrlEntity findUrlEntity = requireOwnedUrl(id, userId);
+        deleteIfExpired(id, findUrlEntity);
+
+        findUrlEntity.setLimit(limit);
+
+        if (findUrlEntity.getCount() < limit) {
+            findUrlEntity.setBlocked(false);
+        } else {
+            findUrlEntity.setBlocked(true);
+        }
+
+        return findUrlEntity.getLimit();
+    }
+
+    private UrlEntity requireOwnedUrl(long id, UUID userId) {
         UrlEntity findUrlEntity = urlRepository.getEntity(id);
 
         if (!findUrlEntity.getUserId().equals(userId)) {
             throw new IllegalStateException("Вы можете редактировать только свои ссылки");
         }
 
-        findUrlEntity.setLimit(limit);
-        return findUrlEntity.getLimit();
+        return findUrlEntity;
+    }
+
+    private void deleteIfExpired(long id, UrlEntity entity) {
+        if (LocalDateTime.now().isAfter(entity.getExpiresDate())) {
+            urlRepository.deleteEntity(id);
+            throw new IllegalStateException(EXPIRED_MESSAGE);
+        }
     }
 
     private int resolveLimit(Integer requestedLimit) {
