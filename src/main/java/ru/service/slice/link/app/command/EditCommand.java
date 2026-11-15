@@ -5,6 +5,7 @@ import ru.service.slice.link.service.AuthService;
 import ru.service.slice.link.service.UrlService;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,13 +30,22 @@ public class EditCommand implements Command {
         UserEntity user = authService.requireCurrentUser();
         String shortCode = extractShortCode(args[0]);
 
-        if (!"-t".equals(args[1])) {
+        handleTtlFlag(shortCode, user.getId(), args[1], args[2]);
+    }
+
+    @Override
+    public String getDescription() {
+        return "увеличить TTL ссылки - edit <url> -t <1h|1d>";
+    }
+
+    private void handleTtlFlag(String shortCode, UUID userId, String flag, String value) {
+        if (!"-t".equals(flag)) {
             throw new IllegalArgumentException(getMessageHowUseCommand());
         }
 
         Integer hours = null;
         Integer days = null;
-        Matcher matcher = TTL_PATTERN.matcher(args[2]);
+        Matcher matcher = TTL_PATTERN.matcher(value);
 
         if (!matcher.matches()) {
             throw new IllegalArgumentException("TTL нужно указывать в формате 1h или 1d");
@@ -50,13 +60,8 @@ public class EditCommand implements Command {
             days = amount;
         }
 
-        LocalDateTime expiresDate = urlService.extendTtl(shortCode, user.getId(), hours, days);
+        LocalDateTime expiresDate = urlService.extendTtl(shortCode, userId, hours, days);
         System.out.printf("TTL ссылки увеличен. Новое время действия: %s%n", expiresDate);
-    }
-
-    @Override
-    public String getDescription() {
-        return "увеличить TTL ссылки - edit <url> -t <1h|1d>";
     }
 
     private String extractShortCode(String input) {
