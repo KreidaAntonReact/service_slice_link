@@ -5,6 +5,7 @@ import ru.service.slice.link.service.AuthService;
 import ru.service.slice.link.service.UrlService;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,14 +24,15 @@ public class EditCommand implements Command {
 
     @Override
     public void execute(String... args) {
-        if (args.length < 3) {
+        if (args.length < 2) {
             throw new IllegalArgumentException(getMessageHowUseCommand());
         }
 
         UserEntity user = authService.requireCurrentUser();
         String shortCode = extractShortCode(args[0]);
+        String[] flags = Arrays.copyOfRange(args, 1, args.length);
 
-        handleTtlFlag(shortCode, user.getId(), args[1], args[2]);
+        handleTtlFlag(shortCode, user.getId(), flags);
     }
 
     @Override
@@ -38,30 +40,37 @@ public class EditCommand implements Command {
         return "увеличить TTL ссылки - edit <url> -t <1h|1d>";
     }
 
-    private void handleTtlFlag(String shortCode, UUID userId, String flag, String value) {
-        if (!"-t".equals(flag)) {
-            throw new IllegalArgumentException(getMessageHowUseCommand());
+    private void handleTtlFlag(String shortCode, UUID userId, String... flags) {
+        for (int i = 0; i < flags.length; i++) {
+            if (!"-t".equals(flags[i])) {
+                continue;
+            }
+
+            if (i + 1 >= flags.length) {
+                throw new IllegalArgumentException(getMessageHowUseCommand());
+            }
+
+            Integer hours = null;
+            Integer days = null;
+            Matcher matcher = TTL_PATTERN.matcher(flags[i + 1]);
+
+            if (!matcher.matches()) {
+                throw new IllegalArgumentException("TTL нужно указывать в формате 1h или 1d");
+            }
+
+            int amount = Integer.parseInt(matcher.group(1));
+            String unit = matcher.group(2).toLowerCase();
+
+            if ("h".equals(unit)) {
+                hours = amount;
+            } else {
+                days = amount;
+            }
+
+            LocalDateTime expiresDate = urlService.extendTtl(shortCode, userId, hours, days);
+            System.out.printf("TTL ссылки увеличен. Новое время действия: %s%n", expiresDate);
+            return;
         }
-
-        Integer hours = null;
-        Integer days = null;
-        Matcher matcher = TTL_PATTERN.matcher(value);
-
-        if (!matcher.matches()) {
-            throw new IllegalArgumentException("TTL нужно указывать в формате 1h или 1d");
-        }
-
-        int amount = Integer.parseInt(matcher.group(1));
-        String unit = matcher.group(2).toLowerCase();
-
-        if ("h".equals(unit)) {
-            hours = amount;
-        } else {
-            days = amount;
-        }
-
-        LocalDateTime expiresDate = urlService.extendTtl(shortCode, userId, hours, days);
-        System.out.printf("TTL ссылки увеличен. Новое время действия: %s%n", expiresDate);
     }
 
     private String extractShortCode(String input) {
