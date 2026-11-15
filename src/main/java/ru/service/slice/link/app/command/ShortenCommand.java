@@ -3,6 +3,7 @@ package ru.service.slice.link.app.command;
 import ru.service.slice.link.entity.UserEntity;
 import ru.service.slice.link.service.AuthService;
 import ru.service.slice.link.service.UrlService;
+import ru.service.slice.link.util.UrlValidator;
 
 public class ShortenCommand implements Command {
     private static final String SHORT_URL_PREFIX = "clck.ru/";
@@ -21,6 +22,9 @@ public class ShortenCommand implements Command {
             throw new IllegalArgumentException(getMessageHowUseCommand());
         }
 
+        String longUrl = args[0];
+        UrlValidator.requireValidUrl(longUrl);
+
         boolean isNewUser = !authService.hasCurrentUser();
         UserEntity user = isNewUser ? authService.register() : authService.requireCurrentUser();
 
@@ -28,7 +32,6 @@ public class ShortenCommand implements Command {
             System.out.printf("Создан пользователь. Ваш UUID: %s%n", user.getId());
         }
 
-        String longUrl = args[0];
         Integer requestedLimit = null;
 
         if (args.length >= 2) {

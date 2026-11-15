@@ -1,6 +1,7 @@
 package ru.service.slice.link.app.command;
 
 import ru.service.slice.link.service.UrlService;
+import ru.service.slice.link.util.UrlValidator;
 
 import java.awt.Desktop;
 import java.net.URI;
@@ -20,8 +21,13 @@ public class OpenCommand implements Command {
             throw new IllegalArgumentException(getMessageHowUseCommand());
         }
 
-        String shortCode = extractShortCode(args[0]);
+        String input = args[0];
+
+        UrlValidator.requireValidUrl(input);
+
+        String shortCode = extractShortCode(input);
         String longUrl = urlService.getLongUrl(shortCode);
+        UrlValidator.requireValidUrl(longUrl);
 
         try {
             Desktop.getDesktop().browse(new URI(longUrl));
