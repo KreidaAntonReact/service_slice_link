@@ -15,23 +15,36 @@ import ru.service.slice.link.repository.UrlRepository;
 import ru.service.slice.link.repository.UserRepository;
 import ru.service.slice.link.service.AuthService;
 import ru.service.slice.link.service.BaseConversion;
+import ru.service.slice.link.service.PersistService;
 import ru.service.slice.link.service.UrlService;
 import ru.service.slice.link.service.UserService;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class App {
+    private static final Set<String> PERSIST_COMMANDS = Set.of(
+            "shorten",
+            "open",
+            "delete",
+            "edit",
+            "user"
+    );
+
     private final Scanner scanner = new Scanner(System.in);
     private final LinkedHashMap<String, Command> commands = new LinkedHashMap<>();
+    private final PersistService persistService;
     private boolean isRun = true;
 
     public App() {
         AppConfig appConfig = new AppConfig();
         UrlRepository urlRepository = new UrlRepository();
         UserRepository userRepository = new UserRepository();
+        this.persistService = new PersistService(userRepository, urlRepository);
+
         BaseConversion baseConversion = new BaseConversion();
         UrlService urlService = new UrlService(urlRepository, baseConversion, appConfig);
         UserService userService = new UserService(userRepository);
@@ -49,10 +62,18 @@ public class App {
     }
 
     public void stop() {
+        try {
+            persistService.save();
+        } catch (Exception e) {
+            logError(e);
+        }
+
         this.isRun = false;
     }
 
     public void run() {
+        this.persistService.load();
+
         System.out.println("Привет! Для того чтобы начать использовать приложение \n"
                 + "ознакомся с перечнем команд.");
         commands.get("help").execute();
@@ -79,6 +100,10 @@ public class App {
 
             try {
                 command.execute(args);
+
+                if (PERSIST_COMMANDS.contains(commandText)) {
+                    persistService.save();
+                }
             } catch (Exception e) {
                 logError(e);
             }

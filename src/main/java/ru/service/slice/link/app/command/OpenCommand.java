@@ -7,8 +7,6 @@ import java.awt.Desktop;
 import java.net.URI;
 
 public class OpenCommand implements Command {
-    private static final String SHORT_URL_PREFIX = "clck.ru/";
-
     private final UrlService urlService;
 
     public OpenCommand(UrlService urlService) {
@@ -21,11 +19,7 @@ public class OpenCommand implements Command {
             throw new IllegalArgumentException(getMessageHowUseCommand());
         }
 
-        String input = args[0];
-
-        UrlValidator.requireValidUrl(input);
-
-        String shortCode = extractShortCode(input);
+        String shortCode = UrlValidator.extractShortCode(args[0]);
         String longUrl = urlService.getLongUrl(shortCode);
         UrlValidator.requireValidUrl(longUrl);
 
@@ -39,26 +33,10 @@ public class OpenCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "открыть короткую ссылку в браузере - open <shortUrl>";
-    }
-
-    private String extractShortCode(String input) {
-        String value = input.trim();
-
-        if (value.startsWith("https://")) {
-            value = value.substring("https://".length());
-        } else if (value.startsWith("http://")) {
-            value = value.substring("http://".length());
-        }
-
-        if (value.startsWith(SHORT_URL_PREFIX)) {
-            value = value.substring(SHORT_URL_PREFIX.length());
-        }
-
-        return value;
+        return "открыть короткую ссылку в браузере - open <https://clck.ru/code>";
     }
 
     private String getMessageHowUseCommand() {
-        return "Ошибка при вводе. Нужно использовать: open <shortUrl>";
+        return "Ошибка при вводе. Нужно использовать: open <https://clck.ru/code>";
     }
 }
