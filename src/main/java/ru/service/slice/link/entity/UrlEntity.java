@@ -10,7 +10,6 @@ public class UrlEntity {
     private long id;
     private String urlLong;
     private UUID userId;
-    private LocalDateTime createAt;
     private LocalDateTime expiresDate;
     private int limit;
     private int count;
@@ -18,8 +17,7 @@ public class UrlEntity {
 
     public UrlEntity() {
         this.id = this.generateId();
-        this.createAt = LocalDateTime.now();
-        this.expiresDate = this.createAt.plusHours(LIFE_TIME_HOURS);
+        this.expiresDate = LocalDateTime.now().plusHours(LIFE_TIME_HOURS);
         this.limit = DEFAULT_LIMIT;
         this.count = 0;
         this.isBlocked = false;
@@ -49,20 +47,8 @@ public class UrlEntity {
         this.userId = userId;
     }
 
-    public LocalDateTime getCreateAt() {
-        return createAt;
-    }
-
-    public void setCreateAt(LocalDateTime createAt) {
-        this.createAt = createAt;
-    }
-
     public LocalDateTime getExpiresDate() {
         return expiresDate;
-    }
-
-    public void setExpiresDate(LocalDateTime expiresDate) {
-        this.expiresDate = expiresDate;
     }
 
     public int getLimit() {
@@ -87,6 +73,22 @@ public class UrlEntity {
 
     public void setBlocked(boolean blocked) {
         isBlocked = blocked;
+    }
+
+    public void increaseTtlByHours(int hours) {
+        if (hours <= 0) {
+            throw new IllegalArgumentException("Количество часов должно быть больше 0");
+        }
+
+        this.expiresDate = this.expiresDate.plusHours(hours);
+    }
+
+    public void increaseTtlByDays(int days) {
+        if (days <= 0) {
+            throw new IllegalArgumentException("Количество дней должно быть больше 0");
+        }
+
+        this.expiresDate = this.expiresDate.plusDays(days);
     }
 
     public long generateId() {

@@ -74,6 +74,31 @@ public class UrlService {
         urlRepository.deleteEntity(id);
     }
 
+    public LocalDateTime extendTtl(String shortUrl, UUID userId, Integer hours, Integer days) {
+        if (hours != null && days != null) {
+            throw new IllegalArgumentException("Можно указать только часы или только дни");
+        }
+
+        if (hours == null && days == null) {
+            throw new IllegalArgumentException("Нужно указать TTL в часах или днях");
+        }
+
+        long id = baseConversion.decode(shortUrl);
+        UrlEntity findUrlEntity = urlRepository.getEntity(id);
+
+        if (!findUrlEntity.getUserId().equals(userId)) {
+            throw new IllegalStateException("Вы можете редактировать только свои ссылки");
+        }
+
+        if (hours != null) {
+            findUrlEntity.increaseTtlByHours(hours);
+        } else {
+            findUrlEntity.increaseTtlByDays(days);
+        }
+
+        return findUrlEntity.getExpiresDate();
+    }
+
     private boolean blockIfLimitExhausted(UrlEntity entity) {
         if (entity.getCount() < entity.getLimit()) {
             return false;
