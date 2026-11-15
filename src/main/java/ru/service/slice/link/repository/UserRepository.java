@@ -28,8 +28,4 @@ public class UserRepository {
 
         return entity;
     }
-
-    public boolean exists(UUID id) {
-        return users.containsKey(id);
-    }
 }

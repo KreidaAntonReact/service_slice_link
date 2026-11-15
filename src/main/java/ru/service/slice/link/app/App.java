@@ -1,6 +1,8 @@
 package ru.service.slice.link.app;
 
 import ru.service.slice.link.app.command.Command;
+import ru.service.slice.link.app.command.DeleteCommand;
+import ru.service.slice.link.app.command.EditCommand;
 import ru.service.slice.link.app.command.ExitCommand;
 import ru.service.slice.link.app.command.HelpCommand;
 import ru.service.slice.link.app.command.LoginCommand;
@@ -8,6 +10,7 @@ import ru.service.slice.link.app.command.LogoutCommand;
 import ru.service.slice.link.app.command.OpenCommand;
 import ru.service.slice.link.app.command.ShortenCommand;
 import ru.service.slice.link.app.command.UserCommand;
+import ru.service.slice.link.config.AppConfig;
 import ru.service.slice.link.repository.UrlRepository;
 import ru.service.slice.link.repository.UserRepository;
 import ru.service.slice.link.service.AuthService;
@@ -26,15 +29,18 @@ public class App {
     private boolean isRun = true;
 
     public App() {
+        AppConfig appConfig = new AppConfig();
         UrlRepository urlRepository = new UrlRepository();
         UserRepository userRepository = new UserRepository();
         BaseConversion baseConversion = new BaseConversion();
-        UrlService urlService = new UrlService(urlRepository, baseConversion);
+        UrlService urlService = new UrlService(urlRepository, baseConversion, appConfig);
         UserService userService = new UserService(userRepository);
         AuthService authService = new AuthService(userService);
 
         commands.put("shorten", new ShortenCommand(authService, urlService));
         commands.put("open", new OpenCommand(urlService));
+        commands.put("delete", new DeleteCommand(authService, urlService));
+        commands.put("edit", new EditCommand(authService, urlService));
         commands.put("user", new UserCommand(authService));
         commands.put("login", new LoginCommand(authService));
         commands.put("logout", new LogoutCommand(authService));
