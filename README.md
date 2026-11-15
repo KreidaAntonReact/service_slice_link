@@ -30,8 +30,8 @@ java -cp "build/classes/java/main:build/resources/main" ru.service.slice.link.Ma
 | Команда | Описание |
 |---|---|
 | `shorten <url> [limit]` | Создать короткую ссылку. URL должен начинаться с `http://` или `https://`. Лимит опционален; итоговое значение не меньше `link.default.limit` из конфига |
-| `open <shortUrl>` | Открыть исходный URL в браузере. Можно передать код или полный вид `clck.ru/...` / `https://clck.ru/...` |
-| `edit <url> [-t <1h\|1d>] [-l <limit>]` | Изменить TTL и/или лимит своей ссылки. Можно указать один флаг или оба |
+| `open <https://clck.ru/code>` | Открыть исходный URL в браузере. Нужна полная короткая ссылка с протоколом |
+| `edit <https://clck.ru/code> [-t <1h\|1d>] [-l <limit>]` | Изменить TTL и/или лимит своей ссылки. Нужна полная короткая ссылка с протоколом. Можно указать один флаг или оба |
 | `delete <url>` | Удалить свою короткую ссылку |
 | `user` | Показать UUID текущего пользователя |
 | `user new` | Создать нового пользователя |
@@ -53,13 +53,13 @@ java -cp "build/classes/java/main:build/resources/main" ru.service.slice.link.Ma
 > open https://clck.ru/3W0a8Bo
 Переход по ссылке: https://www.baeldung.com/java-9-http-client
 
-> edit 3W0a8Bo -t 1h
+> edit https://clck.ru/3W0a8Bo -t 1h
 TTL ссылки увеличен. Новое время действия: 2026-11-16T19:00:00
 
-> edit 3W0a8Bo -l 20
+> edit https://clck.ru/3W0a8Bo -l 20
 Лимит переходов обновлен: 20
 
-> edit 3W0a8Bo -t 2d -l 15
+> edit https://clck.ru/3W0a8Bo -t 2d -l 15
 TTL ссылки увеличен. Новое время действия: 2026-11-18T19:00:00
 Лимит переходов обновлен: 15
 

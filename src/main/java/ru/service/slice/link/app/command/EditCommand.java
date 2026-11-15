@@ -3,6 +3,7 @@ package ru.service.slice.link.app.command;
 import ru.service.slice.link.entity.UserEntity;
 import ru.service.slice.link.service.AuthService;
 import ru.service.slice.link.service.UrlService;
+import ru.service.slice.link.util.UrlValidator;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -10,7 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EditCommand implements Command {
-    private static final String SHORT_URL_PREFIX = "clck.ru/";
     private static final Pattern TTL_PATTERN = Pattern.compile("^(\\d+)([hd])$", Pattern.CASE_INSENSITIVE);
 
     private final AuthService authService;
@@ -28,7 +28,7 @@ public class EditCommand implements Command {
         }
 
         UserEntity user = authService.requireCurrentUser();
-        String shortCode = extractShortCode(args[0]);
+        String shortCode = UrlValidator.extractShortCode(args[0]);
         String[] flags = Arrays.copyOfRange(args, 1, args.length);
 
         TtlChange ttlChange = parseTtlFlag(flags);
@@ -56,7 +56,7 @@ public class EditCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "изменить TTL или лимит ссылки - edit <url> [-t <1h|1d>] [-l <limit>]";
+        return "изменить TTL или лимит ссылки - edit <https://clck.ru/code> [-t <1h|1d>] [-l <limit>]";
     }
 
     private TtlChange parseTtlFlag(String... flags) {
@@ -123,24 +123,8 @@ public class EditCommand implements Command {
         return limit;
     }
 
-    private String extractShortCode(String input) {
-        String value = input.trim();
-
-        if (value.startsWith("https://")) {
-            value = value.substring("https://".length());
-        } else if (value.startsWith("http://")) {
-            value = value.substring("http://".length());
-        }
-
-        if (value.startsWith(SHORT_URL_PREFIX)) {
-            value = value.substring(SHORT_URL_PREFIX.length());
-        }
-
-        return value;
-    }
-
     private String getMessageHowUseCommand() {
-        return "Ошибка при вводе. Нужно использовать: edit <url> [-t <1h|1d>] [-l <limit>]";
+        return "Ошибка при вводе. Нужно использовать: edit <https://clck.ru/code> [-t <1h|1d>] [-l <limit>]";
     }
 
     private static class TtlChange {

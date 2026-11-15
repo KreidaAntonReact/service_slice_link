@@ -6,7 +6,37 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public final class UrlValidator {
+    private static final String SHORT_URL_HOST = "clck.ru";
+
+    private UrlValidator() {}
+
     public static void requireValidUrl(String value) {
+        parseUrl(value);
+    }
+
+    public static String extractShortCode(String value) {
+        URL url = parseUrl(value);
+
+        if (!SHORT_URL_HOST.equalsIgnoreCase(url.getHost())) {
+            throw new IllegalArgumentException(getMessageHowUseShortUrl());
+        }
+
+        String path = url.getPath();
+
+        if (path == null || path.isBlank() || "/".equals(path)) {
+            throw new IllegalArgumentException(getMessageHowUseShortUrl());
+        }
+
+        String shortCode = path.startsWith("/") ? path.substring(1) : path;
+
+        if (shortCode.isBlank() || shortCode.contains("/")) {
+            throw new IllegalArgumentException(getMessageHowUseShortUrl());
+        }
+
+        return shortCode;
+    }
+
+    private static URL parseUrl(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Ссылка не указана");
         }
@@ -28,5 +58,11 @@ public final class UrlValidator {
         if (url.getHost() == null || url.getHost().isBlank()) {
             throw new IllegalArgumentException("Некорректная ссылка");
         }
+
+        return url;
+    }
+
+    private static String getMessageHowUseShortUrl() {
+        return "Нужно передать полную короткую ссылку с протоколом, например https://clck.ru/<code>";
     }
 }
