@@ -33,11 +33,12 @@ public class EditCommand implements Command {
         String[] flags = Arrays.copyOfRange(args, 1, args.length);
 
         handleTtlFlag(shortCode, user.getId(), flags);
+        handleLimitFlag(shortCode, user.getId(), flags);
     }
 
     @Override
     public String getDescription() {
-        return "увеличить TTL ссылки - edit <url> -t <1h|1d>";
+        return "изменить TTL или лимит ссылки - edit <url> [-t <1h|1d>] [-l <limit>]";
     }
 
     private void handleTtlFlag(String shortCode, UUID userId, String... flags) {
@@ -73,6 +74,39 @@ public class EditCommand implements Command {
         }
     }
 
+    private void handleLimitFlag(String shortCode, UUID userId, String... flags) {
+        for (int i = 0; i < flags.length; i++) {
+            if (!"-l".equals(flags[i])) {
+                continue;
+            }
+
+            if (i + 1 >= flags.length) {
+                throw new IllegalArgumentException(getMessageHowUseCommand());
+            }
+
+            int limit = parseLimit(flags[i + 1]);
+            int newLimit = urlService.updateLimit(shortCode, userId, limit);
+            System.out.printf("Лимит переходов обновлен: %d%n", newLimit);
+            return;
+        }
+    }
+
+    private int parseLimit(String value) {
+        int limit;
+
+        try {
+            limit = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Лимит переходов должен быть числом");
+        }
+
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Лимит переходов должен быть больше 0");
+        }
+
+        return limit;
+    }
+
     private String extractShortCode(String input) {
         String value = input.trim();
 
@@ -90,6 +124,6 @@ public class EditCommand implements Command {
     }
 
     private String getMessageHowUseCommand() {
-        return "Ошибка при вводе. Нужно использовать: edit <url> -t <1h|1d>";
+        return "Ошибка при вводе. Нужно использовать: edit <url> [-t <1h|1d>] [-l <limit>]";
     }
 }

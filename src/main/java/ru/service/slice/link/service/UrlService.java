@@ -99,6 +99,18 @@ public class UrlService {
         return findUrlEntity.getExpiresDate();
     }
 
+    public int updateLimit(String shortUrl, UUID userId, int limit) {
+        long id = baseConversion.decode(shortUrl);
+        UrlEntity findUrlEntity = urlRepository.getEntity(id);
+
+        if (!findUrlEntity.getUserId().equals(userId)) {
+            throw new IllegalStateException("Вы можете редактировать только свои ссылки");
+        }
+
+        findUrlEntity.setLimit(limit);
+        return findUrlEntity.getLimit();
+    }
+
     private boolean blockIfLimitExhausted(UrlEntity entity) {
         if (entity.getCount() < entity.getLimit()) {
             return false;
