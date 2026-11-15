@@ -63,6 +63,17 @@ public class UrlService {
         return findUrlEntity.getUrlLong();
     }
 
+    public void deleteUrl(String shortUrl, UUID userId) {
+        long id = baseConversion.decode(shortUrl);
+        UrlEntity findUrlEntity = urlRepository.getEntity(id);
+
+        if (!findUrlEntity.getUserId().equals(userId)) {
+            throw new IllegalStateException("Вы можете удалять только свои ссылки");
+        }
+
+        urlRepository.deleteEntity(id);
+    }
+
     private boolean blockIfLimitExhausted(UrlEntity entity) {
         if (entity.getCount() < entity.getLimit()) {
             return false;

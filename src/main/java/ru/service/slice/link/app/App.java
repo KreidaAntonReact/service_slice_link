@@ -1,6 +1,7 @@
 package ru.service.slice.link.app;
 
 import ru.service.slice.link.app.command.Command;
+import ru.service.slice.link.app.command.DeleteCommand;
 import ru.service.slice.link.app.command.ExitCommand;
 import ru.service.slice.link.app.command.HelpCommand;
 import ru.service.slice.link.app.command.LoginCommand;
@@ -35,6 +36,7 @@ public class App {
 
         commands.put("shorten", new ShortenCommand(authService, urlService));
         commands.put("open", new OpenCommand(urlService));
+        commands.put("delete", new DeleteCommand(authService, urlService));
         commands.put("user", new UserCommand(authService));
         commands.put("login", new LoginCommand(authService));
         commands.put("logout", new LogoutCommand(authService));
