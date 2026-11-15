@@ -2,7 +2,9 @@ package ru.service.slice.link.repository;
 
 import ru.service.slice.link.entity.UserEntity;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -27,5 +29,17 @@ public class UserRepository {
         }
 
         return entity;
+    }
+
+    public List<UserEntity> findAll() {
+        return new ArrayList<>(users.values());
+    }
+
+    public void replaceAll(List<UserEntity> usersForMap) {
+        users.clear();
+
+        for (UserEntity user : usersForMap) {
+            users.put(user.getId(), user);
+        }
     }
 }

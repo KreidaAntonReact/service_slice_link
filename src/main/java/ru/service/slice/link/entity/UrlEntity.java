@@ -51,6 +51,10 @@ public class UrlEntity {
         return expiresDate;
     }
 
+    public void setExpiresDate(LocalDateTime expiresDate) {
+        this.expiresDate = expiresDate;
+    }
+
     public int getLimit() {
         return limit;
     }
