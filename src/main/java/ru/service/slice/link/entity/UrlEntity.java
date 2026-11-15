@@ -4,9 +4,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class UrlEntity {
-    private static final long LIFE_TIME_HOURS = 1;
-    private static final int DEFAULT_LIMIT = 10;
-
     private long id;
     private String urlLong;
     private UUID userId;
@@ -15,10 +12,13 @@ public class UrlEntity {
     private int count;
     private boolean isBlocked;
 
-    public UrlEntity() {
+    public UrlEntity(long lifeTimeHours) {
+        if (lifeTimeHours <= 0) {
+            throw new IllegalArgumentException("Время жизни ссылки должно быть больше 0");
+        }
+
         this.id = this.generateId();
-        this.expiresDate = LocalDateTime.now().plusHours(LIFE_TIME_HOURS);
-        this.limit = DEFAULT_LIMIT;
+        this.expiresDate = LocalDateTime.now().plusHours(lifeTimeHours);
         this.count = 0;
         this.isBlocked = false;
     }

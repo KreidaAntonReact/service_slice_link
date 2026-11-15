@@ -6,7 +6,6 @@ import ru.service.slice.link.service.UrlService;
 
 public class ShortenCommand implements Command {
     private static final String SHORT_URL_PREFIX = "clck.ru/";
-    private static final int DEFAULT_LIMIT = 10;
 
     private final AuthService authService;
     private final UrlService urlService;
@@ -30,13 +29,13 @@ public class ShortenCommand implements Command {
         }
 
         String longUrl = args[0];
-        int limit = DEFAULT_LIMIT;
+        Integer requestedLimit = null;
 
         if (args.length >= 2) {
-            limit = parseLimit(args[1]);
+            requestedLimit = parseLimit(args[1]);
         }
 
-        String shortCode = urlService.convertToShortUrl(longUrl, user.getId(), limit);
+        String shortCode = urlService.convertToShortUrl(longUrl, user.getId(), requestedLimit);
         System.out.printf("Короткая ссылка: %s%s%s%n", extractProtocol(longUrl), SHORT_URL_PREFIX, shortCode);
     }
 

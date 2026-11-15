@@ -10,6 +10,7 @@ import ru.service.slice.link.app.command.LogoutCommand;
 import ru.service.slice.link.app.command.OpenCommand;
 import ru.service.slice.link.app.command.ShortenCommand;
 import ru.service.slice.link.app.command.UserCommand;
+import ru.service.slice.link.config.AppConfig;
 import ru.service.slice.link.repository.UrlRepository;
 import ru.service.slice.link.repository.UserRepository;
 import ru.service.slice.link.service.AuthService;
@@ -28,10 +29,11 @@ public class App {
     private boolean isRun = true;
 
     public App() {
+        AppConfig appConfig = new AppConfig();
         UrlRepository urlRepository = new UrlRepository();
         UserRepository userRepository = new UserRepository();
         BaseConversion baseConversion = new BaseConversion();
-        UrlService urlService = new UrlService(urlRepository, baseConversion);
+        UrlService urlService = new UrlService(urlRepository, baseConversion, appConfig);
         UserService userService = new UserService(userRepository);
         AuthService authService = new AuthService(userService);
 

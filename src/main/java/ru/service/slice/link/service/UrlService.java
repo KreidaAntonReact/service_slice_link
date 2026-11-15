@@ -1,5 +1,6 @@
 package ru.service.slice.link.service;
 
+import ru.service.slice.link.config.AppConfig;
 import ru.service.slice.link.entity.UrlEntity;
 import ru.service.slice.link.repository.UrlRepository;
 
@@ -11,14 +12,17 @@ public class UrlService {
 
     private final UrlRepository urlRepository;
     private final BaseConversion baseConversion;
+    private final AppConfig appConfig;
 
-    public UrlService(UrlRepository urlRepository, BaseConversion baseConversion) {
+    public UrlService(UrlRepository urlRepository, BaseConversion baseConversion, AppConfig appConfig) {
         this.urlRepository = urlRepository;
         this.baseConversion = baseConversion;
+        this.appConfig = appConfig;
     }
 
-    public String convertToShortUrl(String url, UUID userId, int limit) {
-        UrlEntity newEntity = new UrlEntity();
+    public String convertToShortUrl(String url, UUID userId, Integer requestedLimit) {
+        int limit = resolveLimit(requestedLimit);
+        UrlEntity newEntity = new UrlEntity(appConfig.getTtlHours());
 
         newEntity.setUrlLong(url);
         newEntity.setUserId(userId);
@@ -109,6 +113,16 @@ public class UrlService {
 
         findUrlEntity.setLimit(limit);
         return findUrlEntity.getLimit();
+    }
+
+    private int resolveLimit(Integer requestedLimit) {
+        int defaultLimit = appConfig.getDefaultLimit();
+
+        if (requestedLimit == null) {
+            return defaultLimit;
+        }
+
+        return Math.max(requestedLimit, defaultLimit);
     }
 
     private boolean blockIfLimitExhausted(UrlEntity entity) {
