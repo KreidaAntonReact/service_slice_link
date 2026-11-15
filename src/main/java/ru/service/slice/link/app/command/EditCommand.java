@@ -6,7 +6,6 @@ import ru.service.slice.link.service.UrlService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +31,27 @@ public class EditCommand implements Command {
         String shortCode = extractShortCode(args[0]);
         String[] flags = Arrays.copyOfRange(args, 1, args.length);
 
-        handleTtlFlag(shortCode, user.getId(), flags);
-        handleLimitFlag(shortCode, user.getId(), flags);
+        TtlChange ttlChange = parseTtlFlag(flags);
+        Integer limit = parseLimitFlag(flags);
+
+        if (ttlChange == null && limit == null) {
+            throw new IllegalArgumentException(getMessageHowUseCommand());
+        }
+
+        if (ttlChange != null) {
+            LocalDateTime expiresDate = urlService.extendTtl(
+                    shortCode,
+                    user.getId(),
+                    ttlChange.hours,
+                    ttlChange.days
+            );
+            System.out.printf("TTL ссылки увеличен. Новое время действия: %s%n", expiresDate);
+        }
+
+        if (limit != null) {
+            int newLimit = urlService.updateLimit(shortCode, user.getId(), limit);
+            System.out.printf("Лимит переходов обновлен: %d%n", newLimit);
+        }
     }
 
     @Override
@@ -41,7 +59,7 @@ public class EditCommand implements Command {
         return "изменить TTL или лимит ссылки - edit <url> [-t <1h|1d>] [-l <limit>]";
     }
 
-    private void handleTtlFlag(String shortCode, UUID userId, String... flags) {
+    private TtlChange parseTtlFlag(String... flags) {
         for (int i = 0; i < flags.length; i++) {
             if (!"-t".equals(flags[i])) {
                 continue;
@@ -51,8 +69,6 @@ public class EditCommand implements Command {
                 throw new IllegalArgumentException(getMessageHowUseCommand());
             }
 
-            Integer hours = null;
-            Integer days = null;
             Matcher matcher = TTL_PATTERN.matcher(flags[i + 1]);
 
             if (!matcher.matches()) {
@@ -61,20 +77,21 @@ public class EditCommand implements Command {
 
             int amount = Integer.parseInt(matcher.group(1));
             String unit = matcher.group(2).toLowerCase();
+            TtlChange ttlChange = new TtlChange();
 
             if ("h".equals(unit)) {
-                hours = amount;
+                ttlChange.hours = amount;
             } else {
-                days = amount;
+                ttlChange.days = amount;
             }
 
-            LocalDateTime expiresDate = urlService.extendTtl(shortCode, userId, hours, days);
-            System.out.printf("TTL ссылки увеличен. Новое время действия: %s%n", expiresDate);
-            return;
+            return ttlChange;
         }
+
+        return null;
     }
 
-    private void handleLimitFlag(String shortCode, UUID userId, String... flags) {
+    private Integer parseLimitFlag(String... flags) {
         for (int i = 0; i < flags.length; i++) {
             if (!"-l".equals(flags[i])) {
                 continue;
@@ -84,11 +101,10 @@ public class EditCommand implements Command {
                 throw new IllegalArgumentException(getMessageHowUseCommand());
             }
 
-            int limit = parseLimit(flags[i + 1]);
-            int newLimit = urlService.updateLimit(shortCode, userId, limit);
-            System.out.printf("Лимит переходов обновлен: %d%n", newLimit);
-            return;
+            return parseLimit(flags[i + 1]);
         }
+
+        return null;
     }
 
     private int parseLimit(String value) {
@@ -125,5 +141,10 @@ public class EditCommand implements Command {
 
     private String getMessageHowUseCommand() {
         return "Ошибка при вводе. Нужно использовать: edit <url> [-t <1h|1d>] [-l <limit>]";
+    }
+
+    private static class TtlChange {
+        private Integer hours;
+        private Integer days;
     }
 }
