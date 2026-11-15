@@ -33,10 +33,14 @@ public class OpenCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "открыть короткую ссылку в браузере - open <https://clck.ru/code>";
+        return "открыть короткую ссылку в браузере - open <https://"
+                + UrlValidator.SHORT_URL_PREFIX
+                + "code>";
     }
 
     private String getMessageHowUseCommand() {
-        return "Ошибка при вводе. Нужно использовать: open <https://clck.ru/code>";
+        return "Ошибка при вводе. Нужно использовать: open <https://"
+                + UrlValidator.SHORT_URL_PREFIX
+                + "code>";
     }
 }

@@ -3,6 +3,7 @@ package ru.service.slice.link.service;
 import ru.service.slice.link.config.AppConfig;
 import ru.service.slice.link.entity.UrlEntity;
 import ru.service.slice.link.repository.UrlRepository;
+import ru.service.slice.link.util.UrlValidator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -38,7 +39,10 @@ public class UrlService {
             isCreate = this.urlRepository.setEntity(newEntity);
         }
 
-        return this.baseConversion.encode(newEntity.getId());
+        String shortCode = this.baseConversion.encode(newEntity.getId());
+        newEntity.setUrlShort(extractProtocol(url) + UrlValidator.SHORT_URL_PREFIX + shortCode);
+
+        return shortCode;
     }
 
     public String getLongUrl(String shortUrl) {
@@ -123,6 +127,18 @@ public class UrlService {
         }
 
         return Math.max(requestedLimit, defaultLimit);
+    }
+
+    private String extractProtocol(String url) {
+        if (url.startsWith("https://")) {
+            return "https://";
+        }
+
+        if (url.startsWith("http://")) {
+            return "http://";
+        }
+
+        return "";
     }
 
     private boolean blockIfLimitExhausted(UrlEntity entity) {

@@ -6,6 +6,7 @@ import java.util.UUID;
 public class UrlEntity {
     private long id;
     private String urlLong;
+    private String urlShort;
     private UUID userId;
     private LocalDateTime expiresDate;
     private int limit;
@@ -29,6 +30,14 @@ public class UrlEntity {
 
     public void setUrlLong(String urlLong) {
         this.urlLong = urlLong;
+    }
+
+    public String getUrlShort() {
+        return urlShort;
+    }
+
+    public void setUrlShort(String urlShort) {
+        this.urlShort = urlShort;
     }
 
     public long getId() {

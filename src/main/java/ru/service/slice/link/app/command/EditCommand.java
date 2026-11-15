@@ -56,7 +56,9 @@ public class EditCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "изменить TTL или лимит ссылки - edit <https://clck.ru/code> [-t <1h|1d>] [-l <limit>]";
+        return "изменить TTL или лимит ссылки - edit <https://"
+                + UrlValidator.SHORT_URL_PREFIX
+                + "code> [-t <1h|1d>] [-l <limit>]";
     }
 
     private TtlChange parseTtlFlag(String... flags) {
@@ -124,7 +126,9 @@ public class EditCommand implements Command {
     }
 
     private String getMessageHowUseCommand() {
-        return "Ошибка при вводе. Нужно использовать: edit <https://clck.ru/code> [-t <1h|1d>] [-l <limit>]";
+        return "Ошибка при вводе. Нужно использовать: edit <https://"
+                + UrlValidator.SHORT_URL_PREFIX
+                + "code> [-t <1h|1d>] [-l <limit>]";
     }
 
     private static class TtlChange {

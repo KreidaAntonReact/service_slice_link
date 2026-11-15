@@ -86,6 +86,7 @@ public class PersistService {
         UrlEntity entity = new UrlEntity(1);
         entity.setId(dto.id);
         entity.setUrlLong(dto.urlLong);
+        entity.setUrlShort(dto.urlShort);
         entity.setUserId(dto.userId);
         entity.setExpiresDate(dto.expiresDate);
         entity.setLimit(dto.limit);
@@ -111,6 +112,7 @@ public class PersistService {
         UrlDto dto = new UrlDto();
         dto.id = entity.getId();
         dto.urlLong = entity.getUrlLong();
+        dto.urlShort = entity.getUrlShort();
         dto.userId = entity.getUserId();
         dto.expiresDate = entity.getExpiresDate();
         dto.limit = entity.getLimit();

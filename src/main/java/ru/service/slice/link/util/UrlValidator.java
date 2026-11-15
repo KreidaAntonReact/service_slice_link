@@ -6,9 +6,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public final class UrlValidator {
-    private static final String SHORT_URL_HOST = "clck.ru";
+    public static final String SHORT_URL_HOST = "clck.ru";
+    public static final String SHORT_URL_PREFIX = SHORT_URL_HOST + "/";
 
-    private UrlValidator() {}
+    private UrlValidator() {
+    }
 
     public static void requireValidUrl(String value) {
         parseUrl(value);
@@ -63,6 +65,8 @@ public final class UrlValidator {
     }
 
     private static String getMessageHowUseShortUrl() {
-        return "Нужно передать полную короткую ссылку с протоколом, например https://clck.ru/<code>";
+        return "Нужно передать полную короткую ссылку с протоколом, например https://"
+                + SHORT_URL_PREFIX
+                + "<code>";
     }
 }

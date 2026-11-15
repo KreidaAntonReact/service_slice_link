@@ -3,10 +3,9 @@ package ru.service.slice.link.app.command;
 import ru.service.slice.link.entity.UserEntity;
 import ru.service.slice.link.service.AuthService;
 import ru.service.slice.link.service.UrlService;
+import ru.service.slice.link.util.UrlValidator;
 
 public class DeleteCommand implements Command {
-    private static final String SHORT_URL_PREFIX = "clck.ru/";
-
     private final AuthService authService;
     private final UrlService urlService;
 
@@ -22,7 +21,7 @@ public class DeleteCommand implements Command {
         }
 
         UserEntity user = authService.requireCurrentUser();
-        String shortCode = extractShortCode(args[0]);
+        String shortCode = UrlValidator.extractShortCode(args[0]);
 
         urlService.deleteUrl(shortCode, user.getId());
         System.out.println("Ссылка успешно удалена");
@@ -30,26 +29,12 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getDescription() {
-        return "удалить короткую ссылку - delete <url>";
-    }
-
-    private String extractShortCode(String input) {
-        String value = input.trim();
-
-        if (value.startsWith("https://")) {
-            value = value.substring("https://".length());
-        } else if (value.startsWith("http://")) {
-            value = value.substring("http://".length());
-        }
-
-        if (value.startsWith(SHORT_URL_PREFIX)) {
-            value = value.substring(SHORT_URL_PREFIX.length());
-        }
-
-        return value;
+        return "удалить короткую ссылку - delete <https://" + UrlValidator.SHORT_URL_PREFIX + "code>";
     }
 
     private String getMessageHowUseCommand() {
-        return "Ошибка при вводе. Нужно использовать: delete <url>";
+        return "Ошибка при вводе. Нужно использовать: delete <https://"
+                + UrlValidator.SHORT_URL_PREFIX
+                + "code>";
     }
 }

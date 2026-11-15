@@ -6,6 +6,7 @@ import java.util.UUID;
 public class UrlDto {
     public long id;
     public String urlLong;
+    public String urlShort;
     public UUID userId;
     public LocalDateTime expiresDate;
     public int limit;

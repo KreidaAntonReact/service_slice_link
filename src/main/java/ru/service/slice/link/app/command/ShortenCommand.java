@@ -6,8 +6,6 @@ import ru.service.slice.link.service.UrlService;
 import ru.service.slice.link.util.UrlValidator;
 
 public class ShortenCommand implements Command {
-    private static final String SHORT_URL_PREFIX = "clck.ru/";
-
     private final AuthService authService;
     private final UrlService urlService;
 
@@ -39,7 +37,12 @@ public class ShortenCommand implements Command {
         }
 
         String shortCode = urlService.convertToShortUrl(longUrl, user.getId(), requestedLimit);
-        System.out.printf("Короткая ссылка: %s%s%s%n", extractProtocol(longUrl), SHORT_URL_PREFIX, shortCode);
+        System.out.printf(
+                "Короткая ссылка: %s%s%s%n",
+                extractProtocol(longUrl),
+                UrlValidator.SHORT_URL_PREFIX,
+                shortCode
+        );
     }
 
     @Override
